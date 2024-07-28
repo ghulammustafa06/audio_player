@@ -62,6 +62,46 @@ async function fetchTopTracks() {
   return data.items;
 }
 
+function createTrackElement(track) {
+  const trackElement = document.createElement("div");
+  trackElement.className = "track-item";
+  trackElement.innerHTML = `
+                <img src="${track.track.album.images[0].url}" alt="${track.track.name}">
+                <h3>${track.track.name}</h3>
+                <p>${track.track.artists[0].name}</p>
+            `;
+  return trackElement;
+}
+
+async function displayTopTracks() {
+  const tracks = await fetchTopTracks();
+  const trackList = document.getElementById("track-list");
+  tracks.forEach((item) => {
+    const trackElement = createTrackElement(item);
+    trackList.appendChild(trackElement);
+  });
+}
+
+const playPauseBtn = document.getElementById("play-pause");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+const progressBar = document.getElementById("progress");
+
+let isPlaying = false;
+
+playPauseBtn.addEventListener("click", () => {
+  isPlaying = !isPlaying;
+  playPauseBtn.textContent = isPlaying ? "Pause" : "Play";
+});
+
+prevBtn.addEventListener("click", () => {});
+
+nextBtn.addEventListener("click", () => {});
+
+function updateProgressBar(percent) {
+  progressBar.style.width = `${percent}%`;
+}
+
 async function init() {
   await initPlayer();
   await displayTopTracks();
