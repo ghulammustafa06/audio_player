@@ -24,18 +24,47 @@ async function initPlayer() {
     },
   });
 
-    player.addListener('initialization_error', ({ message }) => { console.error(message); });
-    player.addListener('authentication_error', ({ message }) => { console.error(message); });
-    player.addListener('account_error', ({ message }) => { console.error(message); });
-    player.addListener('playback_error', ({ message }) => { console.error(message); });
+  player.addListener("initialization_error", ({ message }) => {
+    console.error(message);
+  });
+  player.addListener("authentication_error", ({ message }) => {
+    console.error(message);
+  });
+  player.addListener("account_error", ({ message }) => {
+    console.error(message);
+  });
+  player.addListener("playback_error", ({ message }) => {
+    console.error(message);
+  });
 
-    player.addListener('player_state_changed', state => { console.log(state); });
+  player.addListener("player_state_changed", (state) => {
+    console.log(state);
+  });
 
-
-    player.addListener('ready', ({ device_id }) => {
-        console.log('Ready with Device ID', device_id);
-    });
-
+  player.addListener("ready", ({ device_id }) => {
+    console.log("Ready with Device ID", device_id);
+  });
 }
 
 initPlayer();
+
+async function fetchTopTracks() {
+  const accessToken = await getAccessToken();
+  const response = await fetch(
+    "https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF/tracks?limit=10",
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const data = await response.json();
+  return data.items;
+}
+
+async function init() {
+  await initPlayer();
+  await displayTopTracks();
+}
+
+init();

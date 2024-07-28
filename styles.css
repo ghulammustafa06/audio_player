@@ -21,4 +21,23 @@
     padding: 25px;
     display: flex;
   }
+
+  
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.player-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #282828;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
   
