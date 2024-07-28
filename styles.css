@@ -16,13 +16,11 @@
   }
   
   .sidebar {
-    width: 250px;
+    width: 230px;
     background-color: #000000;
-    padding: 25px;
+    padding: 20px;
     display: flex;
   }
-
-  
 
 .main-content {
   flex-grow: 1;
@@ -41,3 +39,67 @@
   align-items: center;
 }
   
+.control-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #000000;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h1 {
+    color: #1f2922;
+    margin-bottom: 20px;
+}
+
+.sidebar nav ul {
+    list-style-type: none;
+}
+
+.sidebar nav ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar nav ul li a {
+    color: #b3b3b3;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover {
+    color: #ffffff;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.track-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.track-item {
+    background-color: #181818;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.track-item:hover {
+    background-color: #282828;
+}
