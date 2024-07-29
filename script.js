@@ -113,6 +113,22 @@ function updateProgressBar(percent) {
   progressBar.style.width = `${percent}%`;
 }
 
+function createTrackElement(track) {
+  const trackElement = document.createElement('div');
+  trackElement.className = 'track-item';
+  trackElement.innerHTML = `
+      <img src="${track.album.images[0].url}" alt="${track.name}">
+      <h3>${track.name}</h3>
+      <p>${track.artists[0].name}</p>
+  `;
+  trackElement.addEventListener('click', () => {
+      updateNowPlaying(track);
+  });
+  
+  return trackElement;
+}
+
+
 async function init() {
   await initPlayer();
   await displayTopTracks();

@@ -210,3 +210,37 @@ sidebar nav ul li a {
   display: flex;
   flex-direction: column;
 }
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  width: 40%;
+  margin-right: -85px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: -3px;
+}
+
+.progress-container span {
+  font-size: 12px;
+  margin: 0 10px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  margin-top: -4px;
+  width: 20%;
+}
+
+.volume-control i {
+  margin-right: 10px;
+}
+
+#volume-slider {
+  width: 100%;
+}
