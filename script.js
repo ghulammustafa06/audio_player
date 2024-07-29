@@ -61,6 +61,17 @@ async function fetchTopTracks() {
   const data = await response.json();
   return data.items;
 }
+async function searchTracks(query) {
+  const accessToken = await getAccessToken();
+  const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
+      headers: {
+          'Authorization': `Bearer ${accessToken}`
+      }
+  });
+  const data = await response.json();
+  return data.tracks.items;
+}
+
 
 function createTrackElement(track) {
   const trackElement = document.createElement("div");
