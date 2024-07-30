@@ -146,4 +146,48 @@ async function init() {
     setInterval(updatePlayerState, 1000);
 }
 
+const REDIRECT_URI = 'http://localhost:5500/callback';
+const SCOPES = 'user-read-private user-read-email playlist-read-private playlist-modify-private user-library-read user-library-modify user-read-playback-state user-modify-playback-state';
+
+function loginWithSpotify() {
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+    window.location.href = authUrl;
+}
+
+async function handleAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+        const response = await fetch('/exchange-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+    }
+}
+
+async function getUserPlaylists() {
+    const accessToken = localStorage.getItem('access_token');
+    const response = await fetch('https://api.spotify.com/v1/me/playlists', {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    return await response.json();
+}
+
+async function createPlaylist(name) {
+    const accessToken = localStorage.getItem('access_token');
+    const response = await fetch('https://api.spotify.com/v1/me/playlists', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, public: false })
+    });
+    return await response.json();
+}
+
 init();
