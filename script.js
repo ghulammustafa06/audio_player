@@ -240,4 +240,41 @@ function initializePlayer() {
     return player;
 }
 
+async function playTrack(track) {
+    const accessToken = localStorage.getItem('access_token');
+    const deviceId = localStorage.getItem('device_id');
+    await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ uris: [track.uri] })
+    });
+    isPlaying = true;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    updateNowPlaying(track);
+}
+
+function displayPlaylists(playlists) {
+    const playlistContainer = document.getElementById('playlist-container');
+    playlistContainer.innerHTML = '';
+    playlists.items.forEach(playlist => {
+        const playlistElement = document.createElement('div');
+        playlistElement.className = 'playlist-item';
+        playlistElement.textContent = playlist.name;
+        playlistElement.addEventListener('click', () => loadPlaylistTracks(playlist.id));
+        playlistContainer.appendChild(playlistElement);
+    });
+}
+
+async function loadPlaylistTracks(playlistId) {
+    const accessToken = localStorage.getItem('access_token');
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const data = await response.json();
+    displayTracks(data.items.map(item => item.track));
+}
+
 init();
