@@ -387,4 +387,45 @@ async function checkIfTrackIsLiked(trackId) {
     return data[0];
 }
 
+function updateLikeButton(trackId, isLiked) {
+    const likeButton = document.querySelector(`[data-track-id="${trackId}"]`);
+    if (likeButton) {
+        likeButton.innerHTML = isLiked ? '❤️' : '🤍';
+    }
+}
+
+async function displayRecommendations(trackId) {
+    const accessToken = localStorage.getItem('access_token');
+    const response = await fetch(`https://api.spotify.com/v1/recommendations?seed_tracks=${trackId}&limit=5`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const data = await response.json();
+    
+    const recommendationsContainer = document.getElementById('recommendations');
+    recommendationsContainer.innerHTML = '<h3>Recommended Tracks</h3>';
+    
+    data.tracks.forEach(track => {
+        const trackElement = createTrackElement(track);
+        recommendationsContainer.appendChild(trackElement);
+    });
+}
+
+function createTrackElement(track) {
+    const trackElement = document.createElement('div');
+    trackElement.className = 'track-item';
+    trackElement.innerHTML = `
+        <img src="${track.album.images[0].url}" alt="${track.name}">
+        <div class="track-info">
+            <h3>${track.name}</h3>
+            <p>${track.artists[0].name}</p>
+        </div>
+        <button class="like-button" data-track-id="${track.id}">🤍</button>
+    `;
+    
+    trackElement.addEventListener('click', () => {
+        playTrack(track);
+        displayRecommendations(track.id);
+    });
+    
+
 init();
