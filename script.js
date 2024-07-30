@@ -277,4 +277,67 @@ async function loadPlaylistTracks(playlistId) {
     displayTracks(data.items.map(item => item.track));
 }
 
+async function init() {
+    if (window.location.search.includes('code=')) {
+        await handleAuthCallback();
+        window.history.pushState({}, document.title, "/"); 
+    }
+
+    if (localStorage.getItem('access_token')) {
+        const player = initializePlayer();
+        const playlists = await getUserPlaylists();
+        displayPlaylists(playlists);
+        await displayTopTracks();
+    } else {
+        const loginButton = document.createElement('button');
+        loginButton.textContent = 'Login with Spotify';
+        loginButton.addEventListener('click', loginWithSpotify);
+        document.body.appendChild(loginButton);
+    }
+}
+
+function drawVisualizer(ctx, canvas, analyser, bufferLength, dataArray) {
+    requestAnimationFrame(() => drawVisualizer(ctx, canvas, analyser, bufferLength, dataArray));
+
+    analyser.getByteFrequencyData(dataArray);
+
+    ctx.fillStyle = 'rgb(0, 0, 0)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] / 2;
+        ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+    }
+}
+
+function createVisualizer() {
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            const source = audioCtx.createMediaStreamSource(stream);
+            source.connect(analyser);
+            drawVisualizer(ctx, canvas, analyser, bufferLength, dataArray);
+        })
+        .catch(err => {
+            console.error('Error accessing audio stream:', err);
+        });
+}
+
+function init() {
+    createVisualizer();
+}
+
 init();
