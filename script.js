@@ -340,4 +340,51 @@ function init() {
     createVisualizer();
 }
 
+function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = dataArray[i] / 2;
+            ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            x += barWidth + 1;
+        }
+    }
+
+    drawVisualizer();
+
+
+async function toggleLikeTrack(trackId) {
+    const accessToken = localStorage.getItem('access_token');
+    const isLiked = await checkIfTrackIsLiked(trackId);
+    
+    const url = `https://api.spotify.com/v1/me/tracks?ids=${trackId}`;
+    const method = isLiked ? 'DELETE' : 'PUT';
+    
+    await fetch(url, {
+        method: method,
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    updateLikeButton(trackId, !isLiked);
+}
+
+async function checkIfTrackIsLiked(trackId) {
+    const accessToken = localStorage.getItem('access_token');
+    const response = await fetch(`https://api.spotify.com/v1/me/tracks/contains?ids=${trackId}`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const data = await response.json();
+    return data[0];
+}
+
 init();
