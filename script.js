@@ -89,10 +89,20 @@ async function displayTopTracks() {
     });
 }
 
-function playTrack(track) {
-    console.log(`Playing: ${track.name}`);
+async function playTrack(track) {
+    const accessToken = localStorage.getItem('access_token');
+    const deviceId = localStorage.getItem('device_id');
+    await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ uris: [track.uri] })
+    });
     isPlaying = true;
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    updateNowPlaying(track);
 }
 
 function pauseTrack() {
@@ -188,6 +198,46 @@ async function createPlaylist(name) {
         body: JSON.stringify({ name, public: false })
     });
     return await response.json();
+}
+
+async function createPlaylist(name) {
+    const accessToken = localStorage.getItem('access_token');
+    const response = await fetch('https://api.spotify.com/v1/me/playlists', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, public: false })
+    });
+    return await response.json();
+}
+
+async function addTrackToPlaylist(playlistId, trackUri) {
+    const accessToken = localStorage.getItem('access_token');
+    await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ uris: [trackUri] })
+    });
+}
+
+function initializePlayer() {
+    const player = new Spotify.Player({
+        name: 'GM Media Player',
+        getOAuthToken: cb => { cb(localStorage.getItem('access_token')); }
+    });
+
+    player.addListener('ready', ({ device_id }) => {
+        console.log('Ready with Device ID', device_id);
+        localStorage.setItem('device_id', device_id);
+    });
+
+    player.connect();
+    return player;
 }
 
 init();
