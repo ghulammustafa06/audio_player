@@ -427,5 +427,61 @@ function createTrackElement(track) {
         displayRecommendations(track.id);
     });
     
+    const likeButton = trackElement.querySelector('.like-button');
+    likeButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLikeTrack(track.id);
+    });
+    
+    checkIfTrackIsLiked(track.id).then(isLiked => updateLikeButton(track.id, isLiked));
+    
+    return trackElement;
+}
+
+function setupInfiniteScroll() {
+    const trackList = document.getElementById('track-list');
+    let page = 1;
+    
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            loadMoreTracks();
+        }
+    }, { threshold: 1 });
+
+    const sentinel = document.createElement('div');
+    sentinel.id = 'sentinel';
+    trackList.appendChild(sentinel);
+    observer.observe(sentinel);
+
+    async function loadMoreTracks() {
+        page++;
+        const tracks = await fetchTracks(page);
+        tracks.forEach(track => {
+            const trackElement = createTrackElement(track);
+            trackList.insertBefore(trackElement, sentinel);
+        });
+    }
+}
+
+async function init() {
+    if (window.location.search.includes('code=')) {
+        await handleAuthCallback();
+        window.history.pushState({}, document.title, "/");
+    }
+
+    if (localStorage.getItem('access_token')) {
+        const player = initializePlayer();
+        const playlists = await getUserPlaylists();
+        displayPlaylists(playlists);
+        await displayTopTracks();
+        createVisualizer();
+        setupInfiniteScroll();
+    } else {
+        const loginButton = document.createElement('button');
+        loginButton.textContent = 'Login with Spotify';
+        loginButton.addEventListener('click', loginWithSpotify);
+        document.body.appendChild(loginButton);
+    }
+}
 
 init();
